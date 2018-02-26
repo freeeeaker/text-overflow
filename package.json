@@ -1,0 +1,19 @@
+{
+  "name": "text-overflow",
+  "version": "1.0.0",
+  "description": "A small library to split text and add additional words under the condition of Specified lines",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freeeeaker/textOverflow.git"
+  },
+  "author": "donghao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/freeeeaker/textOverflow/issues"
+  },
+  "homepage": "https://github.com/freeeeaker/textOverflow#readme"
+}
