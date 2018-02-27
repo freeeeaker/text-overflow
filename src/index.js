@@ -1,15 +1,15 @@
 var app = document.getElementById('app')
-var str = '阿斯蒂芬阿斯蒂芬阿斯蒂芬阿斯蒂芬asd发送的发斯蒂芬阿斯蒂芬\n' 
-        + 'asdfasd阿斯蒂芬阿斯蒂芬阿斯蒂芬阿斯蒂芬阿斯蒂芬瑟瑟阿道夫阿asd发斯蒂芬撒'
-        + '旦法阿斯<span class="c"></span>蒂芬阿斯蒂芬asd发斯蒂芬阿斯\n蒂芬阿斯蒂芬asd发送地方撒地方撒旦法阿斯'
-        + '蒂芬阿斯蒂芬斯蒂芬阿斯蒂芬阿斯蒂\n芬阿斯蒂芬阿斯蒂芬阿斯蒂芬发抖'
-        + '阿斯蒂芬阿斯蒂芬阿斯蒂芬asd发撒旦法a阿斯蒂芬阿斯蒂芬阿斯蒂芬安抚d'
+var str = 'aaa阿斯蒂芬阿斯蒂芬阿斯蒂芬阿斯蒂芬asd发送的发斯蒂芬阿斯蒂芬1234567890\n' 
+        + 'bbb阿斯蒂芬阿斯蒂\n芬阿斯蒂芬阿斯\n蒂芬阿斯蒂芬瑟瑟阿道夫阿asd发斯蒂芬撒'
+        + '旦法阿斯<span class="c"></span>蒂芬阿斯蒂芬asd发斯蒂芬阿斯\nccc蒂芬阿斯蒂芬asd发送地方撒地方撒旦法阿斯'
+        + '蒂芬阿斯蒂芬斯蒂芬阿斯蒂芬阿斯蒂\nddd芬阿斯蒂芬阿斯蒂芬阿斯蒂芬发抖'
+        + '阿斯蒂芬阿1<mention>斯蒂芬阿斯蒂芬asd发</mention>撒旦法a阿斯蒂芬阿斯蒂芬阿斯蒂芬安抚d'
         + '<span class="c"></span>一二三四五六七八九十金木水火土阴阳'
 
-textOverflow({ node: app, str, insertString: '...<a href="javascript:;">全文</a>' })
+textOverflow({ node: app, str, addedStr: '...<a href="javascript:;">全文</a>' })
 
 
-function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, onOverflow }) {
+function textOverflow ({ node, str, addedStr, maxWidth = 510, maxLine = 7, onOverflow }) {
   if (!node) return
   node.innerHTML = ''
 
@@ -25,6 +25,7 @@ function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, o
   var addWidth = 0
   var lineNum = 0
   var lastP = null
+  var overflow = false
 
   while(nodeHTML.length > 0) {
     var index = nodeHTML.indexOf('<br>')
@@ -49,15 +50,18 @@ function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, o
   // 计算要插入的字符串的宽度
   var view = document.createElement('p')
   var span = document.createElement('span')
-  span.innerHTML = insertString
+  var cloneNode = null
+  var currentWidth = 0
+
+  span.innerHTML = addedStr
   view.appendChild(span)
   node.appendChild(view)
   addWidth = span.offsetWidth
   node.removeChild(view)
-  
+
   for (var i = 0; i < pList.length; i++) {
     var html = pList[i]
-    if (html ==='<br>') {
+    if (html === '<br>') {
       lineNum++
       node.appendChild(document.createElement('br'))
     } else {
@@ -71,64 +75,24 @@ function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, o
 
       node.appendChild(cloneP)
       lineNum++
-
-      for (var j = 0; j < allChildNodes.length; j++) {
-        var pChildNode = allChildNodes[j]
-        var tagName = pChildNode.nodeName.toLowerCase()
-        if ( tagName === 'letter' || pChildNode.childNodes.length === 0) {
-          // 位于普通span文本中
-          var cloneNode = pChildNode.cloneNode(true)
-          cloneP.appendChild(cloneNode)
-
-          lineWidth += pChildNode.offsetWidth
-          if (lineWidth > maxWidth) {
-            lineNum++
-            if (lineNum > maxLine) {
-              // 行数超过了最大行数
-              console.log('------over1----', lineNum, maxLine)
-              node.removeChild(p)
-              resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-              return insertStringToNode(node, insertString)
-            }
-            lineWidth = pChildNode.offsetWidth
-          }
-        } else {
-          // 位于a标签 mention 标签里面
-          var childNodes = pChildNode.childNodes
-          var cloneNode = document.createElement(tagName)
-          cloneP.appendChild(cloneNode)
-
-          for(var k = 0; k < childNodes.length; k++) {
-            lineWidth += childNodes[k].offsetWidth
-            cloneNode.appendChild(childNodes[k].cloneNode(true))
-            if (lineWidth > maxWidth) {
-              lineNum++
-              if (lineNum > maxLine) {
-                console.log('------over2----', lineNum)
-                // 刚好是a标签 或者 mention里面超出了
-                node.removeChild(p)
-                resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-                return insertStringToNode(node, insertString)
-              }
-              lineWidth = childNodes[k].offsetWidth
-            }
-          }
-        }
-      }
+      var flag = caculateLineNum(p)
       node.removeChild(p)
+      if (flag) {
+        break
+      }
       if (lineNum === maxLine) {
         // 行数目前等于最大行数了
         if (lineWidth >= maxWidth) {
           // 如果当前段落有多行， 则需要补全...
           console.log('-----over3----', lineWidth < maxWidth)
-          resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-          return insertStringToNode(node, insertString)
+          overflow = true
+          break
         } else {
           // 如果当前当前段落只有一行，但是 还有下一段，则也需要补全。
           if (pList[i + 1]) {
             console.log('-----over4----', lineWidth < maxWidth)
-            resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-            return insertStringToNode(node, insertString)
+            overflow = true
+            break
           }
         }
       } else if (lineNum === maxLine - 1) {
@@ -136,49 +100,59 @@ function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, o
         if (pList[i+1] === '<br>') {
           if (pList[i+2]) {
             console.log('-----over5----第七行是空行')
-            resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-            return insertStringToNode(node, insertString)
+            overflow = true
+            break
           } 
         }
       }
     }
   }
-  // 清楚所有包裹文本的span
-  var allSpan = node.querySelectorAll('span')
-  for (var i=0;i<allSpan.length;i++) {
-    if (!allSpan[i].className) {
-      unwrapNode(allSpan[i])
-    }
+
+  if (overflow) {
+    resizeNode(cloneNode, currentWidth, maxWidth, onOverflow)
+    insertStringToNode(node, addedStr)
   }
+  // 清楚所有包裹文本的span
+  // var allSpan = node.querySelectorAll('letter')
+  // for (var i=0;i<allSpan.length;i++) {
+  //   if (!allSpan[i].className) {
+  //     unwrapNode(allSpan[i])
+  //   }
+  // }
   node.normalize()
-  onOverflow && onOverflow(false)
-  
-  function caculateLineNum (node, lineWidth, tagName) {
-    var childNodes = node.childNodes
+
+  function caculateLineNum (element, parentNode) {
+    var childNodes = element.childNodes
     for (var i = 0; i < childNodes.length; i ++) {
       var childNode = childNodes[i]
       var nodeName = childNode.nodeName.toLowerCase()
       if (nodeName === 'letter' || childNode.childNodes.length === 0) {
-        var cloneNode = childNode.cloneNode(true)
-        cloneP.appendChild(cloneNode)
-
+        cloneNode = childNode.cloneNode(true)
+        if (parentNode) {
+          parentNode.appendChild(cloneNode)
+        } else {
+          cloneP.appendChild(cloneNode)
+        }
         lineWidth += childNode.offsetWidth
+        cloneNode.setAttribute('data-offset-width', lineWidth)
         if (lineWidth > maxWidth) {
+          console.log('one more line')
           lineNum++
+          currentWidth = lineWidth + addWidth
+          lineWidth = childNode.offsetWidth
           if (lineNum > maxLine) {
             console.log('------over1----', lineNum, maxLine)
-            node.removeChild(p)
-            resizeNode(cloneNode, lineWidth + addWidth, maxWidth, onOverflow)
-            return insertStringToNode(node, insertString)
+            overflow = true
+            return true
           }
-          lineWidth = childNode.offsetWidth
         }
       } else {
-        var cloneNode = document.createElement(tagName)
+        cloneNode = document.createElement(nodeName)
         cloneP.appendChild(cloneNode)
-        caculateLineNum(childNode, lineWidth, tagName)
+        if(caculateLineNum(childNode, cloneNode)) return true
       }
     }
+    return false
   }
   function resizeNode (node, width, maxWidth, onOverflow) {
     if (width < maxWidth) return onOverflow && onOverflow(true)
@@ -207,14 +181,6 @@ function textOverflow ({ node, str, insertString, maxWidth = 510, maxLine = 7, o
     var p = node.querySelectorAll('p')
     var lastP = p[p.length - 1]
     lastP.innerHTML = lastP.innerHTML + insertString
-    var allSpan = node.querySelectorAll('span')
-    for (var i=0;i<allSpan.length;i++) {
-      if (!allSpan[i].className) {
-        unwrapNode(allSpan[i])
-      }
-    }
-    node.normalize()
-    return node.innerHTML
   } 
   function unwrapNode (node) {
     var parentNode = node.parentNode
