@@ -5,6 +5,8 @@ A small library to split text and add additional words under the condition of Sp
 const textOverflow = require('text-overflow')
 textOverflow(options)
 ```
+## demo website
+  [演示网址](https://freeeeaker.github.io/examples/textOverflow/index.html)
 ## options
 ### node: node
   容器节点，需要被文本截断的元素
