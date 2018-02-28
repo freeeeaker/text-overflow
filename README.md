@@ -1,5 +1,6 @@
 # textOverflow
-A small library to split text and add additional words under the condition of Specified lines
+一个小库，以指定行数切割文本并在后面添加额外的html
+A small library to split text and add additional html under the condition of Specified lines
 ## how to use
 ``` javascript
 const textOverflow = require('text-overflow')
@@ -34,6 +35,7 @@ textOverflow(options)
   is empty line should be allowed
 ## caution
   容器节点的css样式必须设置以下属性
+  
   the css of the container node must have following props
   ``` css
     .container-node {
