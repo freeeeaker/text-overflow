@@ -34,8 +34,10 @@ textOverflow(options)
   容器节点的css样式必须设置以下属性
   the css of the container node must have following props
   ``` css
-    white-space: pre-wrap; // or pre
-    word-break: break-all;
-    word-wrap: break-word;
-    // you alse should to set a accuralte width
+    .container-node {
+      white-space: pre-wrap; // or pre
+      word-break: break-all;
+      word-wrap: break-word;
+      // you alse should to set a accuralte width
+    }
   ```
