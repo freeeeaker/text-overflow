@@ -1,4 +1,4 @@
-# textOverflow
+# text-overflow
 一个小库，以指定行数切割文本并在后面添加额外的html
 
 A small library to split text and add additional html under the condition of Specified lines
