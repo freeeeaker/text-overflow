@@ -205,4 +205,4 @@ function getHorizontalMargin (node) {
   if (rightMargin === 'auto') rightMargin = 0
   return parseFloat(leftMargin) + parseFloat(rightMargin)
 }
-export default textOverflow
+module.exports = textOverflow

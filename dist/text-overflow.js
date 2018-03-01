@@ -86,9 +86,6 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 function textOverflow(node, _ref) {
   var str = _ref.str,
       addedStr = _ref.addedStr,
@@ -326,7 +323,7 @@ function getHorizontalMargin(node) {
   if (rightMargin === 'auto') rightMargin = 0;
   return parseFloat(leftMargin) + parseFloat(rightMargin);
 }
-exports.default = textOverflow;
+module.exports = textOverflow;
 
 /***/ })
 /******/ ]);
