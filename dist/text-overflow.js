@@ -190,7 +190,6 @@ function textOverflow(_ref) {
     insertHTMLToNode(node, addedStr);
   }
   cleanNode();
-
   function caculateLineNum(element, parentNode) {
     var childNodes = element.childNodes;
     for (var i = 0; i < childNodes.length; i++) {
@@ -225,13 +224,6 @@ function textOverflow(_ref) {
     }
     return false;
   }
-  function getHorizontalMargin(node) {
-    var leftMargin = getComputedStyle(node).marginLeft;
-    var rightMargin = getComputedStyle(node).marginRight;
-    if (leftMargin === 'auto') leftMargin = 0;
-    if (rightMargin === 'auto') rightMargin = 0;
-    return parseFloat(leftMargin) + parseFloat(rightMargin);
-  }
   function resizeNode(node, width, maxWidth) {
     if (width < maxWidth) return;
     while (node) {
@@ -259,25 +251,6 @@ function textOverflow(_ref) {
     var p = node.querySelectorAll('p');
     var lastP = p[p.length - 1];
     lastP.innerHTML = lastP.innerHTML + html;
-  }
-  function unwrapNode(node) {
-    var parentNode = node.parentNode;
-    while (node.childNodes.length > 0) {
-      parentNode.insertBefore(node.childNodes[0], node);
-    }
-    node.parentNode.removeChild(node);
-  }
-  function getTextNodesOrEmptyNodes(node) {
-    var nodeList = [];
-    for (var i = 0; i < node.childNodes.length; i++) {
-      var target = node.childNodes[i];
-      if (target.childNodes.length > 0) {
-        nodeList = nodeList.concat(getTextNodesOrEmptyNodes(target));
-      } else {
-        nodeList.push(target);
-      }
-    }
-    return nodeList;
   }
   function wrapNode(nodeList) {
     for (var i = 0; i < nodeList.length; i++) {
@@ -334,7 +307,32 @@ function textOverflow(_ref) {
     node.normalize();
   }
 }
-
+function unwrapNode(node) {
+  var parentNode = node.parentNode;
+  while (node.childNodes.length > 0) {
+    parentNode.insertBefore(node.childNodes[0], node);
+  }
+  node.parentNode.removeChild(node);
+}
+function getTextNodesOrEmptyNodes(node) {
+  var nodeList = [];
+  for (var i = 0; i < node.childNodes.length; i++) {
+    var target = node.childNodes[i];
+    if (target.childNodes.length > 0) {
+      nodeList = nodeList.concat(getTextNodesOrEmptyNodes(target));
+    } else {
+      nodeList.push(target);
+    }
+  }
+  return nodeList;
+}
+function getHorizontalMargin(node) {
+  var leftMargin = getComputedStyle(node).marginLeft;
+  var rightMargin = getComputedStyle(node).marginRight;
+  if (leftMargin === 'auto') leftMargin = 0;
+  if (rightMargin === 'auto') rightMargin = 0;
+  return parseFloat(leftMargin) + parseFloat(rightMargin);
+}
 module.exports = textOverflow;
 
 /***/ })
