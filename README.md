@@ -43,6 +43,6 @@ textOverflow(node, options)
       white-space: pre-wrap; // or pre
       word-break: break-all;
       word-wrap: break-word;
-      // you alse should to set a accuralte width
+      // you alse should to set an accuralte width
     }
   ```
