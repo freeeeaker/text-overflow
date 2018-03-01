@@ -17,7 +17,7 @@ var str = 'this is the first paragraph<mention id="sfd">@github</mention>, it no
         + 'you can use emoji<span class="c"></span>😆😆😆😆😆😆😆😆\n'
         + '😆😆😆😆'
 
-// origin.innerHTML = str
+origin.innerHTML = str
 
 var maxWidth  = 360
 
