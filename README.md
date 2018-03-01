@@ -5,15 +5,15 @@ A small library to split text and add additional html under the condition of Spe
 ## how to use
 ``` javascript
 const textOverflow = require('text-overflow')
-textOverflow(options)
+textOverflow(node, options)
 ```
 ## demo website
   [演示网址](https://freeeeaker.github.io/examples/textOverflow/index.html)
-## options
-### node: node
+## node
   容器节点，需要被文本截断的元素
   
   a container node which the html will be cutted
+## options
 ### str: String
   容器节点中应该被插入的html文本
   
