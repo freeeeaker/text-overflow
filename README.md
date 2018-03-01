@@ -3,6 +3,7 @@
 
 A small library to split text and add additional html under the condition of Specified lines
 ## how to use
+npm install text-overflow
 ``` javascript
 const textOverflow = require('text-overflow')
 textOverflow(node, options)
