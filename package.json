@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "A small library to split text and add additional words under the condition of Specified lines",
   "main": "dist/text-overflow.js",
-  "module": "src/index.js",
+  "module": "src/text-overflow.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "webpack",
+    "start": "webpack-dev-server --config webpack.config.dev.js"
   },
   "repository": {
     "type": "git",

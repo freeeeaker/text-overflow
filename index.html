@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    .test {
+      width: 360px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      word-wrap: break-word;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      color: #4a4a4a;
+    }
+    .c {
+      margin-left: 10px;
+      padding-left: 20px;
+      background: #4af;
+    }
+    p {
+      margin: 0;
+    }
+    mention {
+      color: #6cf;
+    }
+    a {
+      margin-left: 10px;
+      color: #5391fe;
+    }
+    h3 {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .box {
+      width: 410px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h3>原文, original text</h3>
+    <div id="origin" class="test"></div>
+    <h3>最大7行截断后, maxLine: 7</h3>
+    <h5>不过滤空行, with empty line</h5>
+    <div id="app" class="test"></div>
+    <h5>过滤空行, without empty line</h5>
+    <div id="app1" class="test"></div>
+    <h3>最大2行截断后, maxline: 2</h3>
+    <button id="add">点赞</button><button id="remove">取消点赞</button>
+    <div id="node" class="test"></div>
+  </div>
+  <script src="/bundle.js"></script>
+</body>
+</html>

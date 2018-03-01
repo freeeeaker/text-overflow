@@ -86,26 +86,32 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-function textOverflow(_ref) {
-  var node = _ref.node,
-      str = _ref.str,
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+function textOverflow(node, _ref) {
+  var str = _ref.str,
       addedStr = _ref.addedStr,
-      _ref$maxWidth = _ref.maxWidth,
-      maxWidth = _ref$maxWidth === undefined ? 510 : _ref$maxWidth,
+      maxWidth = _ref.maxWidth,
       _ref$maxLine = _ref.maxLine,
-      maxLine = _ref$maxLine === undefined ? 3 : _ref$maxLine,
+      maxLine = _ref$maxLine === undefined ? 1 : _ref$maxLine,
       _ref$emptyLine = _ref.emptyLine,
       emptyLine = _ref$emptyLine === undefined ? true : _ref$emptyLine;
 
   if (!node || node.nodeType !== 1) return;
   node.innerHTML = '';
   str = str.replace(/^(\r?\n)+|(\r?\n)$/g, '');
-
   str = emptyLine ? str.replace(/(\r?\n){2,}/g, '<br><br>').replace(/\r?\n/g, '<br>') : str.replace(/(\r?\n)+/g, '<br>');
+
   var divNode = document.createElement('div');
   divNode.innerHTML = str;
 
-  wrapNode(getTextNodesOrEmptyNodes(divNode));
+  var textNodesAndEmptyNodes = getTextNodesOrEmptyNodes(divNode);
+  for (var i = 0; i < textNodesAndEmptyNodes.length; i++) {
+    if (textNodesAndEmptyNodes[i].nodeType === 3) {
+      wrapTextNode(textNodesAndEmptyNodes[i]);
+    }
+  }
 
   var nodeHTML = divNode.innerHTML;
 
@@ -162,21 +168,19 @@ function textOverflow(_ref) {
       lineNum++;
       var flag = caculateLineNum(p);
       node.removeChild(p);
-      console.log('flag:', flag);
       if (flag) {
         break;
       }
       if (lineNum === maxLine) {
         if (pList[i + 1]) {
-          console.log('case 2:', '当前段落只有一行，但是 还有下一段，则也需要补全');
+          // console.log('case 2:', '当前段落只有一行，但是 还有下一段，则也需要补全')
           overflow = true;
           break;
         }
       } else if (lineNum === maxLine - 1) {
-        // 如果当前行数是倒数第二行， 但是后两段是空行。 需要补全
         if (pList[i + 1] === '<br>') {
           if (pList[i + 2]) {
-            console.log('case 3:', '第七行是空行, 第八行存在 补全');
+            // console.log('case 3:', '第七行是空行, 第八行存在 补全')
             overflow = true;
             break;
           }
@@ -184,12 +188,50 @@ function textOverflow(_ref) {
       }
     }
   }
-
   if (overflow) {
-    resizeNode(cloneNode, currentWidth, maxWidth);
-    insertHTMLToNode(node, addedStr);
+    if (currentWidth >= maxWidth) {
+      while (cloneNode) {
+        if (cloneNode.nodeName.toLowerCase() === 'x-node') {
+          currentWidth -= cloneNode.offsetWidth;
+          cloneNode = cloneNode.previousElementSibling || cloneNode.parentNode.previousElementSibling;
+          cloneNode.parentNode.removeChild(cloneNode.nextElementSibling);
+          if (currentWidth < maxWidth) break;
+        } else {
+          var nodeArr = [].slice.call(cloneNode.querySelectorAll('x-node'));
+          var length = nodeArr.length;
+          while (length) {
+            var currNode = nodeArr[length - 1];
+            currentWidth -= currNode.offsetWidth;
+            currNode.parentNode.removeChild(currNode);
+            length--;
+            if (currentWidth < maxWidth) break;
+          }
+          cloneNode = cloneNode.previousElementSibling;
+          if (length === 0) cloneNode.parentNode.removeChild(cloneNode.nextElementSibling);
+        }
+      }
+    }
+
+    var p = node.querySelectorAll('p');
+    var lastP = p[p.length - 1];
+    lastP.innerHTML = lastP.innerHTML + addedStr;
   }
-  cleanNode();
+
+  var xNodes = node.querySelectorAll('x-node');
+  var pNodes = node.querySelectorAll('p');
+  for (var i = 0; i < pNodes.length; i++) {
+    var p = pNodes[i];
+    var br = document.createElement('br');
+    if (p.nextElementSibling) {
+      p.parentNode.insertBefore(br, p.nextElementSibling);
+    }
+    unwrapNode(p);
+  }
+  for (var i = 0; i < xNodes.length; i++) {
+    unwrapNode(xNodes[i]);
+  }
+  node.normalize();
+
   function caculateLineNum(element, parentNode) {
     var childNodes = element.childNodes;
     for (var i = 0; i < childNodes.length; i++) {
@@ -208,12 +250,12 @@ function textOverflow(_ref) {
           lineNum++;
           lineWidth = childNode.offsetWidth;
           if (lineNum > maxLine) {
-            console.log('case 1:', '段落不超过7段，行数文本超出7行');
+            // console.log('case 1:', '段落不超过7段，行数文本超出7行')
             overflow = true;
             return true;
           }
         }
-        cloneNode.setAttribute('data-offset-width', lineWidth);
+        // cloneNode.setAttribute('data-offset-width', lineWidth)
       } else {
         lineWidth += getHorizontalMargin(childNode);
         cloneNode = childNode.cloneNode(true);
@@ -224,88 +266,39 @@ function textOverflow(_ref) {
     }
     return false;
   }
-  function resizeNode(node, width, maxWidth) {
-    if (width < maxWidth) return;
-    while (node) {
-      if (node.nodeName.toLowerCase() === 'x-node') {
-        width -= node.offsetWidth;
-        node = node.previousElementSibling || node.parentNode.previousElementSibling;
-        node.parentNode.removeChild(node.nextElementSibling);
-        if (width < maxWidth) return;
-      } else {
-        var nodeArr = [].slice.call(node.querySelectorAll('x-node'));
-        var length = nodeArr.length;
-        while (length) {
-          var currNode = nodeArr[length - 1];
-          width -= currNode.offsetWidth;
-          currNode.parentNode.removeChild(currNode);
-          length--;
-          if (width < maxWidth) return;
-        }
-        node = node.previousElementSibling;
-        if (length === 0) node.parentNode.removeChild(node.nextElementSibling);
-      }
-    }
-  }
-  function insertHTMLToNode(node, html) {
-    var p = node.querySelectorAll('p');
-    var lastP = p[p.length - 1];
-    lastP.innerHTML = lastP.innerHTML + html;
-  }
-  function wrapNode(nodeList) {
-    for (var i = 0; i < nodeList.length; i++) {
-      if (nodeList[i].nodeType === 3) {
-        var frag = document.createDocumentFragment();
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+}
 
-        try {
-          for (var _iterator = nodeList[i].nodeValue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var string = _step.value;
+function wrapTextNode(textNode) {
+  var frag = document.createDocumentFragment();
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-            var span = document.createElement('x-node');
-            span.innerHTML = string;
-            frag.appendChild(span);
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
+  try {
+    for (var _iterator = textNode.nodeValue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var string = _step.value;
 
-        nodeList[i].parentNode.insertBefore(frag, nodeList[i]);
-        nodeList[i].parentNode.removeChild(nodeList[i]);
+      var span = document.createElement('x-node');
+      span.innerHTML = string;
+      frag.appendChild(span);
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
       }
     }
   }
-  function cleanNode() {
-    var xNodes = node.querySelectorAll('x-node');
-    var pNodes = node.querySelectorAll('p');
-    for (var i = 0; i < pNodes.length; i++) {
-      var p = pNodes[i];
-      var br = document.createElement('br');
-      if (p.nextElementSibling) {
-        p.parentNode.insertBefore(br, p.nextElementSibling);
-      }
-      unwrapNode(p);
-    }
-    for (var i = 0; i < xNodes.length; i++) {
-      if (!xNodes[i].className) {
-        unwrapNode(xNodes[i]);
-      }
-    }
-    node.normalize();
-  }
+
+  textNode.parentNode.insertBefore(frag, textNode);
+  textNode.parentNode.removeChild(textNode);
 }
 function unwrapNode(node) {
   var parentNode = node.parentNode;
@@ -333,7 +326,7 @@ function getHorizontalMargin(node) {
   if (rightMargin === 'auto') rightMargin = 0;
   return parseFloat(leftMargin) + parseFloat(rightMargin);
 }
-module.exports = textOverflow;
+exports.default = textOverflow;
 
 /***/ })
 /******/ ]);
