@@ -190,8 +190,13 @@ function textOverflow(node, _ref) {
       while (cloneNode) {
         if (cloneNode.nodeName.toLowerCase() === 'x-node') {
           currentWidth -= cloneNode.offsetWidth;
-          cloneNode = cloneNode.previousElementSibling || cloneNode.parentNode.previousElementSibling;
-          cloneNode.parentNode.removeChild(cloneNode.nextElementSibling);
+          cloneNode = getPreviousXNode(cloneNode);
+          if (!cloneNode) break;
+          if (cloneNode.nextElementSibling) {
+            cloneNode.parentNode.removeChild(cloneNode.nextElementSibling);
+          } else if (cloneNode.parentNode.nextElementSibling) {
+            cloneNode.parentNode.parentNode.removeChild(cloneNode.parentNode.nextElementSibling);
+          }
           if (currentWidth < maxWidth) break;
         } else {
           var nodeArr = [].slice.call(cloneNode.querySelectorAll('x-node'));
@@ -264,7 +269,25 @@ function textOverflow(node, _ref) {
     return false;
   }
 }
-
+function getPreviousXNode(xNode) {
+  var previousNode = xNode.previousElementSibling;
+  if (previousNode) {
+    return previousNode;
+  } else {
+    previousNode = xNode.parentNode.previousElementSibling;
+    if (previousNode.nodeName.toLowerCase() === 'x-node') {
+      return previousNode;
+    } else {
+      var xNodes = previousNode.querySelectorAll('x-node');
+      if (xNodes.length > 0) {
+        return xNodes[xNodes.length - 1];
+      } else {
+        return getPreviousXNode(previousNode);
+      }
+    }
+  }
+  return null;
+}
 function wrapTextNode(textNode) {
   var frag = document.createDocumentFragment();
   var _iteratorNormalCompletion = true;
