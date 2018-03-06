@@ -41,7 +41,7 @@ textOverflow(node, options)
   the css of the container node must have following props
   ``` css
     .container-node {
-      white-space: pre-wrap; // or pre
+      white-space: pre-wrap;
       word-break: break-all;
       word-wrap: break-word;
       // you alse should to set an accuralte width
