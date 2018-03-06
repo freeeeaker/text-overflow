@@ -24,7 +24,6 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
   var span = document.createElement('span')
   var cloneNode = null
   var currentWidth = 0
-
   while(nodeHTML.length > 0) {
     var index = nodeHTML.indexOf('<br>')
     if (index !== -1) {
@@ -92,29 +91,16 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
   if (overflow) {
     if (currentWidth >= maxWidth) {
       while (cloneNode) {
-        if (cloneNode.nodeName.toLowerCase() === 'x-node') {
-          currentWidth -= cloneNode.offsetWidth
-          cloneNode = getPreviousXNode(cloneNode)
-          if (!cloneNode) break
-          if (cloneNode.nextElementSibling) {
-            cloneNode.parentNode.removeChild(cloneNode.nextElementSibling)
-          } else if (cloneNode.parentNode.nextElementSibling) {
-            cloneNode.parentNode.parentNode.removeChild(cloneNode.parentNode.nextElementSibling)
-          }
-          if (currentWidth < maxWidth) break
+        currentWidth -= cloneNode.offsetWidth + parseFloat(cloneNode.getAttribute('data-margin'))
+        var newCloneNode = getPreviousNodeOrParentNode(cloneNode)
+        if (!newCloneNode) break
+        if (cloneNode.parentNode === newCloneNode) {
+          newCloneNode.removeChild(cloneNode)
         } else {
-          var nodeArr = [].slice.call(cloneNode.querySelectorAll('x-node'))
-          var length = nodeArr.length
-          while(length) {
-            var currNode = nodeArr[length - 1]
-            currentWidth -= currNode.offsetWidth
-            currNode.parentNode.removeChild(currNode)
-            length--
-            if (currentWidth < maxWidth) break
-          }
-          cloneNode = cloneNode.previousElementSibling
-          if (length === 0) cloneNode.parentNode.removeChild(cloneNode.nextElementSibling)
+          cloneNode.parentNode.removeChild(cloneNode)
         }
+        cloneNode = newCloneNode
+        if (currentWidth < maxWidth) break
       }
     }
     
@@ -143,14 +129,16 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
     for (var i = 0; i < childNodes.length; i ++) {
       var childNode = childNodes[i]
       var nodeName = childNode.nodeName.toLowerCase()
+      var horizontalMargin = getHorizontalMargin(childNode)
       if (nodeName === 'x-node' || childNode.childNodes.length === 0) {
         cloneNode = childNode.cloneNode(true)
+        cloneNode.setAttribute('data-margin', horizontalMargin)
         if (parentNode) {
           parentNode.appendChild(cloneNode)
         } else {
           cloneP.appendChild(cloneNode)
         }
-        lineWidth += childNode.offsetWidth + getHorizontalMargin(childNode)
+        lineWidth += childNode.offsetWidth + horizontalMargin
         currentWidth = lineWidth + addWidth
         if (lineWidth >= maxWidth) {
           lineNum++
@@ -163,8 +151,9 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
         }
         // cloneNode.setAttribute('data-offset-width', lineWidth)
       } else {
-        lineWidth += getHorizontalMargin(childNode)
+        lineWidth += horizontalMargin
         cloneNode = childNode.cloneNode(true)
+        cloneNode.setAttribute('data-margin', horizontalMargin)
         cloneNode.innerHTML = ''
         cloneP.appendChild(cloneNode)
         if(caculateLineNum(childNode, cloneNode)) return true
@@ -172,25 +161,26 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
     }
     return false
   }
+  function resizeNode() {
+
+  }
 }
-function getPreviousXNode (xNode) {
-  var previousNode = xNode.previousElementSibling
+function getPreviousNodeOrParentNode (element) {
+  var previousNode = element.previousElementSibling
   if (previousNode) {
+    if (previousNode.childNodes.length > 0) {
+      return getLastNode(previousNode.childNodes[previousNode.childNodes.length - 1])
+    }
     return previousNode
- } else {
-    previousNode = xNode.parentNode.previousElementSibling
-    if (previousNode.nodeName.toLowerCase() === 'x-node') {
-      return previousNode
-    } else {
-      var xNodes = previousNode.querySelectorAll('x-node')
-      if (xNodes.length > 0) {
-        return xNodes[xNodes.length - 1]
-      } else {
-        return getPreviousXNode(previousNode)
-      }
-   }
- }
- return null
+  } else {
+    return element.parentNode
+  }
+}
+function getLastNode (element) {
+  if (element.childNodes.length > 0) {
+    getLastNode(element.childNodes[element.childNodes.length - 1])
+  }
+  return element.nodeType === 3 ? element.parentNode : element
 }
 function wrapTextNode (textNode) {
   var frag = document.createDocumentFragment()
