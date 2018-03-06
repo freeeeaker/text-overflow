@@ -1,6 +1,6 @@
 {
   "name": "text-overflow",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A small library to split text and add additional words under the condition of Specified lines",
   "main": "dist/text-overflow.js",
   "module": "src/text-overflow.js",
