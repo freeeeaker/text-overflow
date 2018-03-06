@@ -145,7 +145,6 @@ function textOverflow(node, _ref) {
   node.appendChild(view);
   addWidth = span.offsetWidth + getHorizontalMargin(span);
   node.removeChild(view);
-
   for (var i = 0; i < pList.length; i++) {
     var html = pList[i];
     if (html === '<br>') {
@@ -188,6 +187,7 @@ function textOverflow(node, _ref) {
     if (currentWidth >= maxWidth) {
       while (cloneNode) {
         currentWidth -= cloneNode.offsetWidth + parseFloat(cloneNode.getAttribute('data-margin'));
+        console.log(currentWidth);
         var newCloneNode = getPreviousNodeOrParentNode(cloneNode);
         if (!newCloneNode) break;
         if (cloneNode.parentNode === newCloneNode) {
@@ -215,9 +215,10 @@ function textOverflow(node, _ref) {
     }
     unwrapNode(p);
   }
-  for (var i = 0; i < xNodes.length; i++) {
-    unwrapNode(xNodes[i]);
-  }
+  // 为了避免出现由于标题在最末尾导致的强制换行，不删除自定义标签。
+  // for (var i = 0; i < xNodes.length; i++) {
+  //   unwrapNode(xNodes[i])
+  // }
   node.normalize();
 
   function caculateLineNum(element, parentNode) {
@@ -245,7 +246,7 @@ function textOverflow(node, _ref) {
             return true;
           }
         }
-        // cloneNode.setAttribute('data-offset-width', lineWidth)
+        cloneNode.setAttribute('data-offset-width', lineWidth);
       } else {
         lineWidth += horizontalMargin;
         cloneNode = childNode.cloneNode(true);
@@ -257,7 +258,6 @@ function textOverflow(node, _ref) {
     }
     return false;
   }
-  function resizeNode() {}
 }
 function getPreviousNodeOrParentNode(element) {
   var previousNode = element.previousElementSibling;
