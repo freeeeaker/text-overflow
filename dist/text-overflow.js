@@ -187,7 +187,6 @@ function textOverflow(node, _ref) {
     if (currentWidth >= maxWidth) {
       while (cloneNode) {
         currentWidth -= cloneNode.offsetWidth + parseFloat(cloneNode.getAttribute('data-margin'));
-        console.log(currentWidth);
         var newCloneNode = getPreviousNodeOrParentNode(cloneNode);
         if (!newCloneNode) break;
         if (cloneNode.parentNode === newCloneNode) {
