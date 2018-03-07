@@ -150,7 +150,7 @@ function textOverflow (node, { str, addedStr, maxWidth, maxLine = 1, emptyLine =
             return true
           }
         }
-        cloneNode.setAttribute('data-offset-width', lineWidth)
+        // cloneNode.setAttribute('data-offset-width', lineWidth)
       } else {
         lineWidth += horizontalMargin
         cloneNode = childNode.cloneNode(true)
